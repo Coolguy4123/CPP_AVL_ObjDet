@@ -1,4 +1,4 @@
 images_thermal_train/*
 images_thermal_val/*
-images/*
+# images/*
 labels/*
