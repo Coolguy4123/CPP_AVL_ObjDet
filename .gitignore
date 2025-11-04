@@ -1,3 +1,6 @@
+# Original data
 images_thermal_train/*
 images_thermal_val/*
+
+# The model
 yolov8n.pt
