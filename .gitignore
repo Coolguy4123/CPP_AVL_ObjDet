@@ -11,3 +11,5 @@ labels/*
 
 # Run Files
 runs/*
+
+.DS_Store
