@@ -4,3 +4,10 @@ images_thermal_val/*
 
 # The model
 yolov8n.pt
+
+# images and label folders
+images/*
+labels/*
+
+# Run Files
+runs/*
