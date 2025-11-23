@@ -1,13 +1,5 @@
 ultralytics
-<<<<<<< HEAD
 matplotlib
 numpy
 opencv-python
 torch
-=======
-torch
-yaml
-matplotlib
-numpy
-shutil
->>>>>>> temp
