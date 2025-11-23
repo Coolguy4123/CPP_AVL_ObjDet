@@ -3,7 +3,7 @@ images_thermal_train/*
 images_thermal_val/*
 
 # The model
-yolov8n.pt
+yolov8*.pt
 
 # images and label folders
 images/*
@@ -12,4 +12,6 @@ labels/*
 # Run Files
 runs/*
 
+#Others
 .DS_Store
+__pycache__/
