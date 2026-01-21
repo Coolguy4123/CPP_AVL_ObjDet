@@ -1,6 +1,7 @@
 ultralytics
 torch
-yaml
+pyyaml
 matplotlib
 numpy
-shutil
+opencv-python
+tqdm
