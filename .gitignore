@@ -4,6 +4,7 @@ images_thermal_val/*
 
 # The model
 yolov8*.pt
+best.pt
 
 # images and label folders
 images/*
