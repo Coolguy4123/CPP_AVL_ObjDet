@@ -2,7 +2,9 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 import time
+import torch
 
+# ** CREATES A GRAYSCALE THERMAL - LIKE FILTER **
 def rgb_to_thermal_simulation(frame):
     """
     Convert RGB camera feed to thermal-like appearance
@@ -10,18 +12,18 @@ def rgb_to_thermal_simulation(frame):
     # 1. Convert to grayscale
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     
-    # === STEP 1: INVERT ===
+    # INVERT
     inverted = 255 - gray
     
-    # === STEP 2: Edge-aware smoothing ===
+    # 2: Edge-aware smoothing
     # Preserve human silhouettes better
     smooth1 = cv2.bilateralFilter(inverted, 9, 75, 75)
     
-    # === STEP 3: Moderate contrast (not too aggressive) ===
+    # 3: Moderate contrast
     clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
     enhanced = clahe.apply(smooth1)
     
-    # === STEP 4: Detect potential human regions ===
+    # 4: Detect potential human regions
     # Use multiple brightness levels to capture different heat signatures
     
     # High heat (face, exposed skin)
@@ -33,23 +35,23 @@ def rgb_to_thermal_simulation(frame):
     # Low heat (hair, periphery)
     _, low_heat = cv2.threshold(enhanced, 80, 255, cv2.THRESH_BINARY)
     
-    # === STEP 5: Combine heat levels with different weights ===
+    # 5: Combine heat levels with different weights
     # This helps capture full human silhouette including hair
     heat_combined = cv2.addWeighted(high_heat, 0.5, medium_heat, 0.3, 0)
     heat_combined = cv2.addWeighted(heat_combined, 1.0, low_heat, 0.2, 0)
     
-    # === STEP 6: Morphological operations to connect body parts ===
-    # This helps connect head (with hair) to body
+    # 6: Morphological operations to connect body parts
+    # Helps connect head (with hair) to body
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))
     heat_combined = cv2.morphologyEx(heat_combined, cv2.MORPH_CLOSE, kernel)
     
-    # === STEP 7: Blend back with enhanced image ===
+    # 7: Blend back with enhanced image
     thermal = cv2.addWeighted(enhanced, 0.7, heat_combined, 0.3, 0)
     
-    # === STEP 8: Boost overall brightness for better person detection ===
+    # 8: Boost overall brightness for better person detection 
     thermal = cv2.normalize(thermal, None, 30, 245, cv2.NORM_MINMAX)
     
-    # === STEP 9: Final light smoothing ===
+    # 9: Final light smoothing
     thermal = cv2.GaussianBlur(thermal, (3, 3), 0)
     
     # Convert to 3-channel
@@ -57,14 +59,34 @@ def rgb_to_thermal_simulation(frame):
     
     return thermal_3ch, thermal
 
+# COLOR MAPPING FOR EACH CLASS
+CLASS_COLORS = {
+    'person': (0, 255, 255),      # Yellow
+    'car': (0, 255, 0),           # Green
+    'bus': (255, 0, 0),           # Blue
+    'truck': (255, 0, 255),       # Magenta
+    'motor': (0, 165, 255),       # Orange
+    'bike': (255, 255, 0),        # Cyan
+    'light': (128, 0, 128),       # Purple
+    'sign': (0, 255, 128),        # Spring Green
+    'hydrant': (128, 128, 0),     # Teal
+    'skateboard': (255, 192, 203),# Pink
+    'stroller': (255, 255, 255),  # White
+    'other_vehicle': (128, 128, 128), # Gray
+}
 
-# ===== MAIN INFERENCE CODE WITH THERMAL FILTER =====
-
+# === CONFIGURATIONS ===
 WEIGHTS = "best.pt"
-IMG_SIZE = 832
-CONF_THRES = 0.5
+IMG_SIZE = 1024
+CONF_THRES = 0.4
 IOU_THRES = 0.55
 MAX_DET = 200
+device = ("cuda" if torch.cuda.is_available()
+          else "mps" if torch.backends.mps.is_available()
+          else "cpu")
+# =======================
+
+# === MAIN INFERENCE PORTION ===
 
 model = YOLO(WEIGHTS)
 cap = cv2.VideoCapture(0)
@@ -84,17 +106,18 @@ while True:
         print("Can't receive frame. Exiting ...")
         break
     
-    # ===== APPLY THERMAL SIMULATION FILTER =====
+    # APPLY THERMAL SIMULATION FILTER
     thermal_3ch, thermal_display = rgb_to_thermal_simulation(frame)
     
-    # ===== YOLO INFERENCE ON THERMAL-SIMULATED FRAME =====
+    # INFERENCE
     results = model.predict(
         source=thermal_3ch,
         imgsz=IMG_SIZE,
         conf=CONF_THRES,
         iou=IOU_THRES,
         max_det=MAX_DET,
-        verbose=False
+        verbose=False,
+        device=device
     )
     
     r = results[0]
@@ -111,14 +134,18 @@ while True:
         
         for (x1, y1, x2, y2), conf, cls in zip(boxes, confs, clss):
             x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
-            label = f"{names[cls]} {conf:.2f}"
+            class_name = names[cls]
+            label = f"{class_name} {conf:.2f}"
+            
+            # Get color for this class (Default is Green)
+            color = CLASS_COLORS.get(class_name, (0, 255, 0))
             
             # bbox
-            cv2.rectangle(display_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
             
             # label background
             (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
-            cv2.rectangle(display_frame, (x1, y1 - th - 8), (x1 + tw, y1), (0, 255, 0), -1)
+            cv2.rectangle(display_frame, (x1, y1 - th - 8), (x1 + tw, y1), color, -1)
             
             # label text
             cv2.putText(display_frame, label, (x1, y1 - 5), 
@@ -139,19 +166,20 @@ while True:
     
     # ===== SHOW BOTH ORIGINAL AND THERMAL SIDE-BY-SIDE =====
     # Resize for side-by-side comparison
-    h, w = frame.shape[:2]
-    frame_resized = cv2.resize(frame, (w//2, h//2))
-    display_resized = cv2.resize(display_frame, (w//2, h//2))
+    # h, w = frame.shape[:2]
+    # frame_resized = cv2.resize(frame, (w//2, h//2))
+    # display_resized = cv2.resize(display_frame, (w//2, h//2))
     
-    # Add labels
-    cv2.putText(frame_resized, "Original RGB", (10, 30), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    cv2.putText(display_resized, "Thermal Simulation", (10, 30), 
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    # # Add labels
+    # cv2.putText(frame_resized, "Original RGB", (10, 30), 
+    #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+    # cv2.putText(display_resized, "Thermal Simulation", (10, 30), 
+    #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
     
-    comparison = np.hstack([frame_resized, display_resized])
+    # comparison = np.hstack([frame_resized, display_resized])
     
-    cv2.imshow('Comparison View', comparison)
+    # cv2.imshow('Comparison View', comparison)
+    
     cv2.imshow('Thermal Detection', display_frame)
     
     # Press 'q' to exit
