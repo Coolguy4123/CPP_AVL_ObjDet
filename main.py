@@ -87,7 +87,6 @@ device = ("cuda" if torch.cuda.is_available()
 # =======================
 
 # === MAIN INFERENCE PORTION ===
-
 model = YOLO(WEIGHTS)
 cap = cv2.VideoCapture(0)
 
@@ -126,6 +125,9 @@ while True:
     # ===== DRAW DETECTIONS =====
     # Draw on the thermal-simulated frame for consistent visualization
     display_frame = thermal_3ch.copy()
+
+    # Create seperate RGB display frame
+    rgb_display_frame = frame.copy()
     
     if r.boxes is not None and len(r.boxes) > 0:
         boxes = r.boxes.xyxy.cpu().numpy()
@@ -140,15 +142,25 @@ while True:
             # Get color for this class (Default is Green)
             color = CLASS_COLORS.get(class_name, (0, 255, 0))
             
-            # bbox
+            # bbox on thermal frame
             cv2.rectangle(display_frame, (x1, y1), (x2, y2), color, 2)
             
-            # label background
+            # label background on thermal frame
             (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 2)
             cv2.rectangle(display_frame, (x1, y1 - th - 8), (x1 + tw, y1), color, -1)
             
-            # label text
+            # label text on thermal frame
             cv2.putText(display_frame, label, (x1, y1 - 5), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+            
+            # bbox on RGB frame
+            cv2.rectangle(rgb_display_frame, (x1, y1), (x2, y2), color, 2)
+            
+            # label background on RGB frame
+            cv2.rectangle(rgb_display_frame, (x1, y1 - th - 8), (x1 + tw, y1), color, -1)
+            
+            # label text on RGB frame
+            cv2.putText(rgb_display_frame, label, (x1, y1 - 5), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
     
     # ===== FPS DISPLAY =====
@@ -162,6 +174,8 @@ while True:
     
     fps = f"FPS: {fps_display:.1f}"
     cv2.putText(display_frame, fps, (7, 50), 
+                cv2.FONT_HERSHEY_COMPLEX, 1, (100, 250, 0), 3)
+    cv2.putText(rgb_display_frame, fps, (7, 50), 
                 cv2.FONT_HERSHEY_COMPLEX, 1, (100, 250, 0), 3)
     
     # ===== SHOW BOTH ORIGINAL AND THERMAL SIDE-BY-SIDE =====
@@ -181,6 +195,7 @@ while True:
     # cv2.imshow('Comparison View', comparison)
     
     cv2.imshow('Thermal Detection', display_frame)
+    cv2.imshow('RGB Detection', rgb_display_frame)
     
     # Press 'q' to exit
     if cv2.waitKey(1) == ord('q'):
