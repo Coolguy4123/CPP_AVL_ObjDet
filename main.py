@@ -178,22 +178,6 @@ while True:
     cv2.putText(rgb_display_frame, fps, (7, 50), 
                 cv2.FONT_HERSHEY_COMPLEX, 1, (100, 250, 0), 3)
     
-    # ===== SHOW BOTH ORIGINAL AND THERMAL SIDE-BY-SIDE =====
-    # Resize for side-by-side comparison
-    # h, w = frame.shape[:2]
-    # frame_resized = cv2.resize(frame, (w//2, h//2))
-    # display_resized = cv2.resize(display_frame, (w//2, h//2))
-    
-    # # Add labels
-    # cv2.putText(frame_resized, "Original RGB", (10, 30), 
-    #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    # cv2.putText(display_resized, "Thermal Simulation", (10, 30), 
-    #             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-    
-    # comparison = np.hstack([frame_resized, display_resized])
-    
-    # cv2.imshow('Comparison View', comparison)
-    
     cv2.imshow('Thermal Detection', display_frame)
     cv2.imshow('RGB Detection', rgb_display_frame)
     
