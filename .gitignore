@@ -16,3 +16,8 @@ runs/*
 #Others
 .DS_Store
 __pycache__/
+
+# Misc.
+YOLOv8*
+*.mp4
+videoURL.txt
