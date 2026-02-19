@@ -3,7 +3,7 @@ images_thermal_train/*
 images_thermal_val/*
 
 # The model
-yolov8*.pt
+yolo*.pt
 best*.pt
 
 # images and label folders
