@@ -3,18 +3,18 @@ train: images/train
 val: images/val
 
 names:
- - person
- - bike
- - car
- - motor
- - bus
- - train
- - truck
- - light
- - hydrant
- - sign
- - dog
- - skateboard
- - stroller
- - scooter
- - other vehicle
+ - person       # 0
+ - bike         # 1
+ - car          # 2
+ - motor        # 3
+ - bus          # 4
+#  - train
+ - truck        # 5
+ - light        # 6
+#  - hydrant
+ - sign         # 7
+ - dog          # 8
+#  - skateboard
+#  - stroller 
+ - scooter      # 9
+#  - other vehicle
