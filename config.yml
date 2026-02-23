@@ -1,20 +1,40 @@
+# path: .
+# train: images/train
+# val: images/val
+
+# names:
+#  - person       # 0
+#  - bike         # 1
+#  - car          # 2
+#  - motor        # 3
+#  - bus          # 4
+# #  - train
+#  - truck        # 5
+#  - light        # 6
+# #  - hydrant
+#  - sign         # 7
+#  - dog          # 8
+# #  - skateboard
+# #  - stroller 
+#  - scooter      # 9
+# #  - other vehicle
+
 path: .
 train: images/train
-val: images/val
+val:   images/val
+
+# Final class list after cleanup:
+#   DROPPED : scooter (15 instances - unlearnable), dog (irrelevant to AV)
+#   MERGED  : bike + motor -> two_wheeler
+#             bus  + truck -> large_vehicle
+#   KEPT    : person, car, light, sign (well-represented, AV-critical)
 
 names:
- - person       # 0
- - bike         # 1
- - car          # 2
- - motor        # 3
- - bus          # 4
-#  - train
- - truck        # 5
- - light        # 6
-#  - hydrant
- - sign         # 7
- - dog          # 8
-#  - skateboard
-#  - stroller 
- - scooter      # 9
-#  - other vehicle
+  - person         # 0  ~50,478 instances
+  - two_wheeler    # 1  ~8,353  instances  (bike + motor combined)
+  - car            # 2  ~73,623 instances
+  - large_vehicle  # 3  ~3,074  instances  (bus + truck combined)
+  - light          # 4  ~16,198 instances
+  - sign           # 5  ~20,770 instances
+
+nc: 6
