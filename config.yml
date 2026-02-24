@@ -24,14 +24,14 @@ train: images/train
 val:   images/val
 
 # Final class list after cleanup:
-#   DROPPED : scooter (15 instances - unlearnable), dog (irrelevant to AV)
+#   DROPPED : dog 
 #   MERGED  : bike + motor -> two_wheeler
 #             bus  + truck -> large_vehicle
-#   KEPT    : person, car, light, sign (well-represented, AV-critical)
+#   KEPT    : person, car, light, sign
 
 names:
   - person         # 0  ~50,478 instances
-  - two_wheeler    # 1  ~8,353  instances  (bike + motor combined)
+  - two_wheeler    # 1  ~8,353  instances  (bike + motor + scooter combined)
   - car            # 2  ~73,623 instances
   - large_vehicle  # 3  ~3,074  instances  (bus + truck combined)
   - light          # 4  ~16,198 instances
