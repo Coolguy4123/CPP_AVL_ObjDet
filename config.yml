@@ -20,8 +20,10 @@
 # #  - other vehicle
 
 path: .
-train: images/train
-val:   images/val
+train:
+  - images/train
+  - images/train_augmented
+val: images/val
 
 # Final class list after cleanup:
 #   DROPPED : dog 
