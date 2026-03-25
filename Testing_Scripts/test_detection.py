@@ -42,7 +42,7 @@ def main():
     # SSH into the nvidia jetson
     # Load your trained model
     # Use .engine file if you converted to TensorRT, otherwise use .pt
-    MODEL_PATH = 'best.pt'  # or 'best.engine'
+    MODEL_PATH = '../weights/best_dataAug_s1.pt'  # or 'best.engine'
     
     print(f"Loading model from {MODEL_PATH}...")
     model = YOLO(MODEL_PATH)
