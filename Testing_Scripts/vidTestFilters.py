@@ -3,6 +3,7 @@ import numpy as np
 from ultralytics import YOLO
 import time
 import torch
+from pathlib import Path
 
 # ** CREATES A GRAYSCALE THERMAL - LIKE FILTER **
 def rgb_to_thermal_simulation(frame):
@@ -61,29 +62,31 @@ def rgb_to_thermal_simulation(frame):
 
 # COLOR MAPPING FOR EACH CLASS
 CLASS_COLORS = {
-    'person': (0, 255, 255),      # Yellow
-    'car': (0, 255, 0),           # Green
-    'bus': (255, 0, 0),           # Blue
-    'truck': (255, 0, 255),       # Magenta
-    'motor': (0, 165, 255),       # Orange
-    'bike': (255, 255, 0),        # Cyan
-    'light': (128, 0, 128),       # Purple
-    'sign': (0, 255, 128),        # Spring Green
-    'hydrant': (128, 128, 0),     # Teal
-    'skateboard': (255, 192, 203),# Pink
-    'stroller': (255, 255, 255),  # White
-    'other_vehicle': (128, 128, 128), # Gray
+    'person': (0, 255, 255),
+    'two_wheeler': (0, 165, 255),
+    'car': (0, 255, 0),
+    'large_vehicle': (255, 0, 255),
+    'light': (128, 0, 128),
+    'sign': (0, 255, 128),
+    
+    # Legacy aliases for older weights/datasets.
+    'bike': (0, 165, 255),
+    'motor': (0, 165, 255),
+    'scooter': (0, 165, 255),
+    'bus': (255, 0, 255),
+    'truck': (255, 0, 255),
 }
 
+ROOT = Path(__file__).resolve().parents[1]
+
 # === CONFIGURATIONS ===
-WEIGHTS = "best.pt"
+WEIGHTS = ROOT / "weights" / "best_s1.pt"
 IMG_SIZE = 1024
 CONF_THRES = 0.4
 IOU_THRES = 0.55
 MAX_DET = 200
 
-# CHANGE THIS TO YOUR VIDEO PATH
-VIDEO_PATH = "t1.mp4"
+VIDEO_PATH = ROOT / "videos" / "t1.mp4"
 
 device = ("cuda" if torch.cuda.is_available()
           else "mps" if torch.backends.mps.is_available()
@@ -93,10 +96,10 @@ device = ("cuda" if torch.cuda.is_available()
 # === MAIN INFERENCE PORTION ===
 model = YOLO(WEIGHTS)
 
-cap = cv2.VideoCapture(VIDEO_PATH)
+cap = cv2.VideoCapture(str(VIDEO_PATH))
 
 if not cap.isOpened():
-    print("Cannot open video")
+    print(f"Cannot open video: {VIDEO_PATH}")
     exit()
 
 frame_count = 0
