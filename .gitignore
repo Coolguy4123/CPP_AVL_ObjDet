@@ -21,3 +21,7 @@ __pycache__/
 YOLOv8*
 *.mp4
 videoURL.txt
+
+weights/
+videos/
+export/
