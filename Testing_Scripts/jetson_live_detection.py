@@ -16,13 +16,13 @@ class TestConfig:
     # Model settings
     model_path: Path = ROOT / "weights" / "best_s1.pt"
     device: str | None = None
-    confidence: float = 0.40
+    confidence: float = 0.31
     iou_threshold: float = 0.45
-    image_size: int = 960
+    image_size: int = 480
     max_detections: int = 100
 
     # Camera settings
-    use_csi_camera: bool = True
+    use_csi_camera: bool = False
     usb_camera_index: int = 0
     frame_width: int = 1280
     frame_height: int = 720
