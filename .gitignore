@@ -1,8 +1,8 @@
 # Original data
 images_thermal_train/*
 images_thermal_val/*
-image_rgb_train/*
-image_rgb_val/*
+images_rgb_train/*
+images_rgb_val/*
 # The model
 yolo*.pt
 best*.pt
@@ -10,6 +10,7 @@ best*.pt
 # images and label folders
 images/*
 labels/*
+rgb_training/dataset/
 
 # Run Files
 runs/*

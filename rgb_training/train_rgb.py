@@ -139,6 +139,7 @@ def main() -> None:
         "imgsz": IMAGE_SIZE,
         "batch": -1,
         "workers": 8,
+        "patience": 5,
         "device": device,
         "project": str(RUNS_DIR),
         "name": "yolov8s_rgb",
