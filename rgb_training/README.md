@@ -3,7 +3,7 @@
 Run from the repository root with:
 
 ```powershell
-python rgb_training/train_rgb.py
+python3 rgb_training/train_rgb.py
 ```
 
 The trainer is configured for an RTX 5090 on CUDA device 0. It fails fast if
