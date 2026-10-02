@@ -13,3 +13,10 @@ git clone https://github.com/Coolguy4123/CPP_AVL_ObjDet.git
 
 ## File structure of the working directory
 <img width="368" height="648" alt="image" src="https://github.com/user-attachments/assets/6061f3f1-d019-48fc-839e-b508d7b764d8" />
+
+## Model
+- YOLOv8s
+
+## Results
+
+## Future Work
