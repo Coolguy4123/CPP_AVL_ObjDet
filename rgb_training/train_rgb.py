@@ -8,8 +8,12 @@ starts training with RGB-safe augmentations.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 from pathlib import Path
+
+# Helps reduce allocator fragmentation during large 1024px batches.
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 import torch
 import yaml
@@ -25,7 +29,28 @@ RUNS_DIR = ROOT / "runs"
 MODEL = "yolov8s.pt"
 EPOCHS = 200
 IMAGE_SIZE = 1024
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+REQUIRE_RTX_5090 = True
+
+
+def configure_rtx_5090() -> int:
+    """Select and validate the RTX 5090 CUDA device."""
+    if not torch.cuda.is_available():
+        raise RuntimeError(
+            "CUDA is unavailable. Install a CUDA-enabled PyTorch build for the RTX 5090."
+        )
+
+    device_index = 0
+    device_name = torch.cuda.get_device_name(device_index)
+    capability = torch.cuda.get_device_capability(device_index)
+    print(f"GPU: {device_name} | compute capability: {capability}")
+    if REQUIRE_RTX_5090 and "5090" not in device_name:
+        raise RuntimeError(
+            f"Expected an RTX 5090 on CUDA device {device_index}, found: {device_name}"
+        )
+
+    # Use fast TF32 tensor cores for FP32 operations where supported.
+    torch.set_float32_matmul_precision("high")
+    return device_index
 
 
 def _category_map(categories: list[dict]) -> dict[int, int]:
@@ -106,6 +131,7 @@ def prepare_dataset() -> Path:
 
 
 def main() -> None:
+    device = configure_rtx_5090()
     data_yaml = prepare_dataset()
     train_config = {
         "data": str(data_yaml),
@@ -113,7 +139,7 @@ def main() -> None:
         "imgsz": IMAGE_SIZE,
         "batch": -1,
         "workers": 8,
-        "device": DEVICE,
+        "device": device,
         "project": str(RUNS_DIR),
         "name": "yolov8s_rgb",
         "exist_ok": False,
@@ -142,7 +168,7 @@ def main() -> None:
         "amp": True,
     }
 
-    print(f"Training RGB detector on {DEVICE}")
+    print(f"Training RGB detector on RTX 5090 (CUDA device {device})")
     print(f"Dataset config: {data_yaml}")
     model = YOLO(MODEL)
     results = model.train(**train_config)
