@@ -3,6 +3,7 @@ images_thermal_train/*
 images_thermal_val/*
 images_rgb_train/*
 images_rgb_val/*
+
 # The model
 yolo*.pt
 best*.pt
