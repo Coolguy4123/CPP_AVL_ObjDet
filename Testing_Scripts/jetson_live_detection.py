@@ -14,9 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 @dataclass
 class TestConfig:
     # Model settings
-    model_path: Path = ROOT / "weights" / "best_s1.pt"
+    model_path: Path = ROOT / "rgb_training" / "yolov8s_rgb" / "weights" / "best.pt"
     device: str | None = None
-    confidence: float = 0.31
+    confidence: float = 0.323
     iou_threshold: float = 0.45
     image_size: int = 480
     max_detections: int = 100

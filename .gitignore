@@ -3,6 +3,7 @@ images_thermal_train/*
 images_thermal_val/*
 images_rgb_train/*
 images_rgb_val/*
+align/*
 
 # The model
 yolo*.pt
@@ -28,3 +29,7 @@ videoURL.txt
 weights/
 videos/
 export/
+
+
+# venv
+.objdet/
